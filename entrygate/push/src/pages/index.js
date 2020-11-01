@@ -1,21 +1,46 @@
-import React, { useEffect } from "react";
-import { Container,Heading,Button,Flex} from "theme-ui";
+import React, { useEffect ,useState} from "react";
+import { Container, Heading, Button, Flex, NavLink } from "theme-ui";
 import netlifyIdentity from "netlify-identity-widget"
-
+import { Link } from "gatsby";
 
 
 export default props => {
-    useEffect (()=>{
+    const [user, setUser] = useState();
+    
+    useEffect(() => {
         netlifyIdentity.init({});
     });
-    return(
-    <Container>
-        <Flex sx={{flexDirection :"column",padding:30}}>
-            <Heading as = "h1">Todo App</Heading>
-            <Button sx ={{ marginTop:20}} 
-                onClick = {() => { netlifyIdentity.open()}}>
-                Login Test PoPup
+    netlifyIdentity.on("login",user =>{
+        netlifyIdentity.close();
+        setUser(user);
+    });
+    netlifyIdentity.on("logout",() =>{
+        netlifyIdentity.close();
+        setUser();
+    });
+
+    return (
+        <Container>
+            <Flex as='nav'>
+                    <NavLink as = {Link} to = "/" p={2}>
+                        Home
+                    </NavLink>
+                    <NavLink as={Link} to ={"/app"} p={2}>
+                       DashBoard
+                    </NavLink>
+                    {user && <NavLink p = {2}>
+                        {user.user_metadata.full_name}
+                    </NavLink>}
+    
+            </Flex>
+
+            <Flex sx={{ flexDirection: "column", padding: 30 }}>
+                <Heading as="h1">Todo App</Heading>
+                <Button sx={{ marginTop: 20 }}
+                    onClick={() => { netlifyIdentity.open() }}>
+                    Login Test PoPup
                 </Button>
-        </Flex>
-    </Container>
-)}
+            </Flex>
+        </Container>
+    )
+}
